@@ -1,13 +1,41 @@
 $(document).ready(function() {
-
-  var csvFileName = "dados.csv";
-
-  $.get(csvFileName, function (data) {
-    var lines = data.split("\n");
-    var tableHead = "<tr>" + lines[0].split(",").map(header => `<th>${header}</th>`).join("") + "</tr>";
-    var tableRows = lines.slice(1).map(row => "<tr>" + row.split(",").map(cell => `<td>${cell}</td>`).join("") + "</tr>");
-    $("#table-head").append(tableHead);
-    $("#table-body").append(tableRows.join(""));
-    $('#myTable').DataTable();
-  });
+  $.ajax({
+    url: 'dados.csv',
+    dataType: 'text',
+    }).done(successFunction);
 });
+
+function successFunction(data) {
+  var allRows = data.split(/\r?\n|\r/);
+  var table = '<table>';
+  for (var singleRow = 0; singleRow < allRows.length; singleRow++) {
+    if (singleRow === 0) {
+      table += '<thead>';
+      table += '<tr>';
+    } else {
+      table += '<tr>';
+    }
+    var rowCells = allRows[singleRow].split(',');
+    for (var rowCell = 0; rowCell < rowCells.length; rowCell++) {
+      if (singleRow === 0) {
+        table += '<th>';
+        table += rowCells[rowCell];
+        table += '</th>';
+      } else {
+        table += '<td>';
+        table += rowCells[rowCell];
+        table += '</td>';
+      }
+    }
+    if (singleRow === 0) {
+      table += '</tr>';
+      table += '</thead>';
+      table += '<tbody>';
+    } else {
+      table += '</tr>';
+    }
+  }
+  table += '</tbody>';
+  table += '</table>';
+  $('body').append(table);
+}
